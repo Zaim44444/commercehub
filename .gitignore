@@ -42,3 +42,10 @@ Thumbs.db
 *.log
 
 **/.git-backup
+
+seller-mobile/node_modules/
+seller-mobile/.expo/
+seller-mobile/dist/
+seller-mobile/.env
+seller-mobile/.env.*
+!seller-mobile/.env.example

@@ -127,7 +127,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:8081",
-                "http://127.0.0.1:8081"
+                "http://127.0.0.1:8081",
+                "http://localhost:8082",
+                "http://127.0.0.1:8082"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -136,7 +138,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Create development roles after migrations have been applied.
+// Seed development roles. Database migrations must already be applied.
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -144,7 +146,10 @@ if (app.Environment.IsDevelopment())
     var roleManager = scope.ServiceProvider
         .GetRequiredService<RoleManager<IdentityRole>>();
 
-    foreach (var roleName in new[] { "Customer", "Admin" })
+    var userManager = scope.ServiceProvider
+        .GetRequiredService<UserManager<ApplicationUser>>();
+
+    foreach (var roleName in new[] { "Customer", "Admin", "Vendor" })
     {
         if (await roleManager.RoleExistsAsync(roleName))
         {
@@ -157,12 +162,42 @@ if (app.Environment.IsDevelopment())
 
         if (!result.Succeeded)
         {
-            var errors = string.Join(
-                "; ",
-                result.Errors.Select(error => error.Description)
+            throw new InvalidOperationException(
+                string.Join(
+                    "; ",
+                    result.Errors.Select(error => error.Description)
+                )
             );
+        }
+    }
 
-            throw new InvalidOperationException(errors);
+    // Temporary: grant seller access to your existing test account.
+    var sellerEmail = "zaim@example.com";
+
+    var sellerUser = await userManager.FindByEmailAsync(sellerEmail);
+
+    if (sellerUser is null)
+    {
+        throw new InvalidOperationException(
+            "Seller test account was not found. Check sellerEmail."
+        );
+    }
+
+    if (!await userManager.IsInRoleAsync(sellerUser, "Vendor"))
+    {
+        var result = await userManager.AddToRoleAsync(
+            sellerUser,
+            "Vendor"
+        );
+
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(
+                string.Join(
+                    "; ",
+                    result.Errors.Select(error => error.Description)
+                )
+            );
         }
     }
 }
