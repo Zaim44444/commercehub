@@ -14,6 +14,7 @@ import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
+import type { ComponentProps } from 'react';
 
 export default function AppTabs() {
   return (
@@ -33,19 +34,35 @@ export default function AppTabs() {
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+type TabButtonProps = Omit<TabTriggerSlotProps, 'ref'> & {
+  ref?: ComponentProps<typeof Pressable>['ref'];
+};
+
+export function TabButton({
+  children,
+  isFocused,
+  ...props
+}: TabButtonProps) {
   return (
-    <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
+      <Pressable
+        {...props}
+        style={({ pressed }) => (pressed ? styles.pressed : undefined)}
+      >
       <ThemedView
         type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
+        style={styles.tabButtonView}
+      >
+        <ThemedText
+          type="small"
+          themeColor={isFocused ? 'text' : 'textSecondary'}
+        >
           {children}
         </ThemedText>
       </ThemedView>
     </Pressable>
   );
 }
+
 
 export function CustomTabList(props: TabListProps) {
   const scheme = useColorScheme();
