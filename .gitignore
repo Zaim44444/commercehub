@@ -1,0 +1,44 @@
+# Dependencies
+**/node_modules/
+
+# Expo and generated output
+**/.expo/
+**/dist/
+**/web-build/
+
+# .NET build output
+**/bin/
+**/obj/
+**/TestResults/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Credentials and signing files
+**/secrets.json
+*.pfx
+*.p12
+*.key
+*.keystore
+*.jks
+
+# Local databases
+*.mdf
+*.ldf
+*.sqlite
+*.sqlite3
+
+# Editor and machine files
+**/.vs/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+**/.git-backup
