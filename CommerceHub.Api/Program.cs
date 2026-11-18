@@ -138,7 +138,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed development roles. Database migrations must already be applied.
+// Seed development roles and test-account access.
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -171,23 +171,28 @@ if (app.Environment.IsDevelopment())
         }
     }
 
-    // Temporary: grant seller access to your existing test account.
-    var sellerEmail = "zaim@example.com";
+    var testEmail = "zaim@example.com";
 
-    var sellerUser = await userManager.FindByEmailAsync(sellerEmail);
+    var testUser = await userManager.FindByEmailAsync(testEmail);
 
-    if (sellerUser is null)
+    if (testUser is null)
     {
         throw new InvalidOperationException(
-            "Seller test account was not found. Check sellerEmail."
+            "Test account was not found. Check testEmail."
         );
     }
 
-    if (!await userManager.IsInRoleAsync(sellerUser, "Vendor"))
+    // Grant both roles, keeping any existing roles.
+    foreach (var roleName in new[] { "Vendor", "Admin" })
     {
+        if (await userManager.IsInRoleAsync(testUser, roleName))
+        {
+            continue;
+        }
+
         var result = await userManager.AddToRoleAsync(
-            sellerUser,
-            "Vendor"
+            testUser,
+            roleName
         );
 
         if (!result.Succeeded)

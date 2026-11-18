@@ -32,10 +32,19 @@ export async function apiRequest<T>(
     const body = await response.json().catch(() => null);
 
     if (!response.ok) {
+      const validationErrors =
+        body?.errors && typeof body.errors === 'object'
+          ? Object.values(body.errors)
+              .flat()
+              .filter((value): value is string => typeof value === 'string')
+              .join('\n')
+          : '';
+    
       throw new Error(
-        body?.message ??
-          body?.detail ??
-          body?.title ??
+        validationErrors ||
+          body?.message ||
+          body?.detail ||
+          body?.title ||
           `Request failed (${response.status}).`,
       );
     }

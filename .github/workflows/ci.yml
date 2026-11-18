@@ -83,3 +83,29 @@ jobs:
 
       - name: Check TypeScript
         run: npx tsc --noEmit
+
+  admin-web:
+    name: Admin website build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: admin-web
+
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: admin-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build admin website
+        run: npm run build

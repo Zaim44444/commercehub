@@ -46,8 +46,16 @@ function RootNavigator() {
 
       <Stack.Protected guard={isSeller}>
         <Stack.Screen name="(seller)" />
+        <Stack.Screen
+          name="product-create"
+          options={{
+            headerShown: false,
+            presentation: 'card',
+          }}
+        />
       </Stack.Protected>
     </Stack>
+    
   );
 }
 

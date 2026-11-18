@@ -11,6 +11,8 @@ public class ApplicationDbContext(
 {
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<Product> Products => Set<Product>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         // Configure Identity first, then apply our custom settings.
@@ -98,6 +100,54 @@ public class ApplicationDbContext(
                 .WithMany()
                 .HasForeignKey(token => token.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Product>(entity =>
+        {
+            entity.ToTable("Products", table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_Products_Price_Positive",
+                    "[Price] > 0"
+                );
+
+                table.HasCheckConstraint(
+                    "CK_Products_StockQuantity_NonNegative",
+                    "[StockQuantity] >= 0"
+                );
+            });
+
+            entity.HasKey(product => product.Id);
+
+            entity.Property(product => product.VendorId)
+                .HasMaxLength(450)
+                .IsRequired();
+
+            entity.Property(product => product.Name)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.Property(product => product.Description)
+                .HasMaxLength(2000);
+
+            entity.Property(product => product.Price)
+                .HasPrecision(18, 2);
+
+            entity.Property(product => product.StockQuantity)
+                .HasDefaultValue(0);
+
+            entity.Property(product => product.IsActive)
+                .HasDefaultValue(true);
+
+            entity.Property(product => product.CreatedAtUtc)
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
+            entity.HasIndex(product => product.VendorId);
+
+            entity.HasOne(product => product.Vendor)
+                .WithMany()
+                .HasForeignKey(product => product.VendorId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
     }
 }

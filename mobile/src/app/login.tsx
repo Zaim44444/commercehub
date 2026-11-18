@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/auth-provider';
+import { router } from 'expo-router';
 
 export default function LoginScreen() {
   const { signIn, error: sessionError } = useAuth();
@@ -115,6 +116,23 @@ export default function LoginScreen() {
               ) : (
                 <Text style={styles.buttonText}>Sign in</Text>
               )}
+            </Pressable>
+            
+            <Pressable
+              accessibilityRole="button"
+              disabled={saving}
+              onPress={() => router.push('/signup')}
+              style={{ alignItems: 'center', paddingVertical: 18 }}
+            >
+              <Text
+                style={{
+                  color: '#173E35',
+                  fontSize: 14,
+                  fontWeight: '600',
+                }}
+              >
+                Don&apos;t have an account? Sign up
+              </Text>
             </Pressable>
           </View>
         </ScrollView>
